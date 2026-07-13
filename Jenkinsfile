@@ -23,9 +23,6 @@ pipeline {
     }
 
     stages {
-        // ============================================
-        // STAGE 1: Preparación
-        // ============================================
         stage('Prepare') {
             steps {
                 echo 'Preparando entorno...'
@@ -35,9 +32,6 @@ pipeline {
             }
         }
 
-        // ============================================
-        // STAGE 2: Instalación de Dependencias
-        // ============================================
         stage('Install Dependencies') {
             steps {
                 echo 'Instalando dependencias...'
@@ -45,9 +39,6 @@ pipeline {
             }
         }
 
-        // ============================================
-        // STAGE 3: Ejecutar Tests
-        // ============================================
         stage('Test') {
             steps {
                 echo 'Ejecutando tests...'
@@ -55,15 +46,11 @@ pipeline {
             }
             post {
                 always {
-                    // Publicar reportes de tests si existen
                     junit 'test-results/**/*.xml'
                 }
             }
         }
 
-        // ============================================
-        // STAGE 4: Construcción de Imagen Docker
-        // ============================================
         stage('Build Docker Image') {
             steps {
                 echo 'Construyendo imagen Docker...'
@@ -73,10 +60,6 @@ pipeline {
             }
         }
 
-        // ============================================
-        // STAGE 5: Publicación en Registro (Docker Hub)
-        // Variante del PASO 4.2 del PDF
-        // ============================================
         stage('Push to Docker Hub') {
             steps {
                 echo 'Publicando imagen en Docker Hub...'
@@ -88,18 +71,13 @@ pipeline {
                             passwordVariable: 'DOCKER_PASS'
                         )
                     ]) {
-                        // Login a Docker Hub
                         sh '''
                             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                         '''
-
-                        // Taggear la imagen
                         sh """
                             docker tag ${IMAGE_TAG_COMMIT} ${IMAGE_TAG_LATEST}
                             docker tag ${IMAGE_TAG_COMMIT} ${IMAGE_TAG_BUILD}
                         """
-
-                        // Publicar todas las tags
                         sh """
                             docker push ${IMAGE_TAG_COMMIT}
                             docker push ${IMAGE_TAG_LATEST}
@@ -113,15 +91,8 @@ pipeline {
         /* ============================================
          * STAGE 5b (OPCIONAL): Push to Registry (GHCR) - PASO 4.1 del PDF
          * Descomenta este stage solo si además quieres publicar en GHCR.
-         * Requiere:
-         *   - Credencial 'github-token' (Secret text) creada en Jenkins
-         *   - Una credencial o variable adicional para GITHUB_USER
-         *     (el PDF no la define explícitamente en este bloque)
          * ============================================
         stage('Push to Registry (GHCR)') {
-            when {
-                branch 'main'
-            }
             steps {
                 withCredentials([
                     string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')
@@ -136,9 +107,6 @@ pipeline {
         }
         */
 
-        // ============================================
-        // STAGE 6: Verificación
-        // ============================================
         stage('Verify Published Image') {
             steps {
                 echo 'Verificando imagen publicada...'
@@ -155,16 +123,13 @@ pipeline {
         }
     }
 
-    // ============================================
-    // POST: Acciones finales
-    // ============================================
     post {
         success {
             echo 'Pipeline completado exitosamente!'
             emailext (
                 subject: "Pipeline Success: ${JOB_NAME} - ${BUILD_NUMBER}",
                 body: "El pipeline se ha completado exitosamente.\n\nImagen publicada: ${IMAGE_TAG_COMMIT}",
-                to: 'equipo@ejemplo.com'
+                to: 'yahirlag790@gmail.com'
             )
         }
         failure {
@@ -172,13 +137,12 @@ pipeline {
             emailext (
                 subject: "Pipeline Failed: ${JOB_NAME} - ${BUILD_NUMBER}",
                 body: "El pipeline ha fallado. Revisa los logs para más detalles.",
-                to: 'equipo@ejemplo.com'
+                to: 'yahirlag790@gmail.com'
             )
         }
         cleanup {
             echo 'Limpiando recursos...'
             script {
-                // Limpiar imágenes locales para ahorrar espacio
                 sh """
                     docker image prune -f
                 """
