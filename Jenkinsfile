@@ -1,5 +1,5 @@
 pipeline {
-  agent any
+    agent any
 
     environment {
         // Configuración de registro
@@ -8,6 +8,9 @@ pipeline {
 
         // Nombre de la imagen (formato: usuario/repo)
         IMAGE_NAME = 'tu-usuario-dockerhub/mi-app'
+
+        // Usuario de GitHub, necesario para el login a GHCR
+        GITHUB_USER = 'AndrithLA'
 
         // Variables de versión
         COMMIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
@@ -111,6 +114,14 @@ pipeline {
             }
         }
 
+        /* ============================================
+         * STAGE 5b (OPCIONAL): Push to Registry (GHCR) - PASO 4.1 del PDF
+         * Descomenta este stage solo si además quieres publicar en GHCR.
+         * Requiere:
+         *   - Credencial 'github-token' (Secret text) creada en Jenkins
+         *   - Una credencial o variable adicional para GITHUB_USER
+         *     (el PDF no la define explícitamente en este bloque)
+         * ============================================
         stage('Push to Registry (GHCR)') {
             when {
                 branch 'main'
@@ -127,7 +138,7 @@ pipeline {
                 }
             }
         }
-        
+        */
 
         // ============================================
         // STAGE 6: Verificación
