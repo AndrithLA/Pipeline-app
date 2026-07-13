@@ -7,7 +7,7 @@ pipeline {
         // (En el PDF, para GHCR sería: REGISTRY = 'ghcr.io')
 
         // Nombre de la imagen (formato: usuario/repo)
-        IMAGE_NAME = 'tu-usuario-dockerhub/mi-app'
+        IMAGE_NAME = 'andriht/mi-app'
 
         // Usuario de GitHub, necesario para el login a GHCR
         GITHUB_USER = 'AndrithLA'
