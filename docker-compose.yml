@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-pipeline  # <--- Cambia el nombre aquí
+    privileged: true
+    user: root
+    ports:
+      - "8082:8080"      # <--- Ojo: Cambia el puerto a 8081 para que no choque con el 8080 del otro
+      - "50001:50000"
+    volumes:
+      - jenkins_home_pipeline:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+volumes:
+  jenkins_home_pipeline:
