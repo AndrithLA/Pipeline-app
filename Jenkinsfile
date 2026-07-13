@@ -7,7 +7,7 @@ pipeline {
         // (En el PDF, para GHCR sería: REGISTRY = 'ghcr.io')
 
         // Nombre de la imagen (formato: usuario/repo)
-        IMAGE_NAME = 'andriht/mi-app'
+        IMAGE_NAME = 'tu-usuario-dockerhub/mi-app'
 
         // Usuario de GitHub, necesario para el login a GHCR
         GITHUB_USER = 'AndrithLA'
@@ -78,10 +78,6 @@ pipeline {
         // Variante del PASO 4.2 del PDF
         // ============================================
         stage('Push to Docker Hub') {
-            when {
-                // Solo publicar en main o si es un tag
-                branch 'main'
-            }
             steps {
                 echo 'Publicando imagen en Docker Hub...'
                 script {
@@ -144,9 +140,6 @@ pipeline {
         // STAGE 6: Verificación
         // ============================================
         stage('Verify Published Image') {
-            when {
-                branch 'main'
-            }
             steps {
                 echo 'Verificando imagen publicada...'
                 script {
