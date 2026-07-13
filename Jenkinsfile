@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+    docker {
+        image 'docker:latest'
+        args '-v /var/run/docker.sock:/var/run/docker.sock'
+    }
+}
 
     environment {
         // Configuración de registro
@@ -110,6 +115,24 @@ pipeline {
                 }
             }
         }
+
+        stage('Push to Registry (GHCR)') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([
+                    string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')
+                ]) {
+                    sh '''
+                        echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_USER --password-stdin
+                        docker push ${IMAGE_TAG_COMMIT}
+                        docker push ${IMAGE_TAG_LATEST}
+                    '''
+                }
+            }
+        }
+        
 
         // ============================================
         // STAGE 6: Verificación
